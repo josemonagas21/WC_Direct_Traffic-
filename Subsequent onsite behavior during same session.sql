@@ -103,6 +103,7 @@ SELECT
  JOIN subset as s on s.session_id = a.session_id
  LEFT JOIN clicks as c on c.pageview_id = a.pageview_id
  WHERE s.session_id = a.session_id AND a.agent_day_session_pageview_index > 1 -- making sure that these are subsequent pages during the same session 
+       AND a.date = s.date_1 -- making sure that the date of the sessions overlap, usually a session resets after 30 min of inactivity 
 GROUP BY 1
 -- ORDER BY s.session_id, a.agent_day_session_pageview_index asc
 ORDER BY date asc 
