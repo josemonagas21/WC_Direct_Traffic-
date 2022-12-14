@@ -26,8 +26,9 @@ WITH ch AS
     FROM `nyt-bigquery-beta-workspace.wirecutter_data.channel` c
             LEFT JOIN `nyt-bigquery-beta-workspace.stuart_data.wc_devices` w ON w.pageview_id = c.pageview_id AND w.date = c.date
             WHERE c.date BETWEEN start_date AND end_date 
-            -- AND (session_channel_2 = 'Direct' OR session_channel_2 = 'Organic Search') 
-            AND session_channel_2 = 'Direct'
+            AND (session_channel_2 = 'Direct' OR session_channel_2 = 'Organic Search') 
+            AND w.device = 'Mobile'
+          
 ),
 fp AS -- Get first pageview for each session
 (
@@ -39,13 +40,13 @@ fp AS -- Get first pageview for each session
 )
 -- Select only first pageviews
     SELECT  
-            DATE_TRUNC(date, MONTH) AS date,
+            -- DATE_TRUNC(date, MONTH) AS date,
             ch.*
     FROM ch
     JOIN fp ON
     fp.session_id = ch.session_id
     AND fp.pv = ch.agent_day_session_pageview_index
-    WHERE ch.object_id = 'HOME'
+    WHERE ch.object_id = 'HOME' -- only ppl who landed in the HP
     -- GROUP BY 1
     ORDER BY 3,4,6,7
 
@@ -72,7 +73,7 @@ WITH all_traffic AS (
 ),
 subset AS ( -- get session_index of the users on mobile web > Direct/Search whose first PV is the WC HP
     SELECT *
-        FROM `nyt-bigquery-beta-workspace.jose_data.session_id` 
+        FROM `nyt-bigquery-beta-workspace.jose_data.session_id` -- update this table for every date range 
         -- from    `nyt-bigquery-beta-workspace.jose_data.mobileweb_clicks`
 ),
 clicks AS (
@@ -103,6 +104,7 @@ SELECT
  JOIN subset as s on s.session_id = a.session_id
  LEFT JOIN clicks as c on c.pageview_id = a.pageview_id
  WHERE s.session_id = a.session_id AND a.agent_day_session_pageview_index > 1 -- making sure that these are subsequent pages during the same session 
+       AND a.date = s.date -- making sure that the date of the sessions overlap, usually a session resets after 30 min of inactivity 
 GROUP BY 1
 -- ORDER BY s.session_id, a.agent_day_session_pageview_index asc
 ORDER BY date asc 
