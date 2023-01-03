@@ -1,4 +1,4 @@
-# mobileweb_direct_traffic
+# WC_Direct_Traffic
 This analysis touches on mobile web users that come to our site via direct or organic search
 
 [Doc Work Sheet](https://docs.google.com/document/d/1Blw7_wpOl3P7U7wpKfb46IaEcddIkMfzAaeKmmVrigc/edit?usp=sharing)
